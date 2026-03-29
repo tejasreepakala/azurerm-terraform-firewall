@@ -1,6 +1,6 @@
 resource "azurerm_firewall_policy_rule_collection_group" "firewall_rules" {
   name               = "fw-policy-rule-group"
-  firewall_policy_id = azurerm_firewall_policy.main.id
+  firewall_policy_id = azurerm_firewall_policy.firewall_policy.id
   priority           = 100
 
   # NETWORK RULES (IP/Port based)
