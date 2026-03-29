@@ -1,0 +1,36 @@
+name: "Apply"
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    secrets:
+      ARM_CLIENT_ID: { required: true }
+      ARM_SUBSCRIPTION_ID: { required: true }
+      ARM_TENANT_ID: { required: true }
+      ARM_CLIENT_SECRET: { required: true }
+
+jobs:
+  terraform_apply:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }} 
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Init
+        run: terraform init
+
+      - name: Apply
+        run: |
+          terraform workspace select ${{ inputs.environment }}
+          terraform apply -var-file="variables/${{ inputs.environment }}.tfvars" -auto-approve

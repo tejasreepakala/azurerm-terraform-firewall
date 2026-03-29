@@ -1,0 +1,32 @@
+name: "Azure Firewall"
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target Environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options: [dev, prod]
+
+jobs:
+  scan:
+    uses: ./.github/workflows/scan.yml
+
+  plan:
+    needs: scan
+    uses: ./.github/workflows/plan.yml
+    with:
+      environment: ${{ github.event.inputs.environment || 'dev' }}
+    secrets: inherit
+
+  apply:
+    needs: plan
+    if: github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/apply.yml
+    with:
+      environment: ${{ github.event.inputs.environment }}
+    secrets: inherit
